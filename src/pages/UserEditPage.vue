@@ -25,10 +25,16 @@ const route = useRoute();
 const router = useRouter();
 
 const editUser = ref({
-  editKey: route.query.editKey,
-  currentValue: route.query.currentValue,
-  editName: route.query.editName,
+  editKey: (route.query.editKey as string) ?? '',
+  currentValue: (route.query.currentValue as string) ?? '',
+  editName: (route.query.editName as string) ?? '',
 })
+
+interface ResponseType {
+  code: number;
+  data: number;
+  message?: string;
+}
 
 const onSubmit = async () => {
   const currentUser = await getCurrentUser();
@@ -40,12 +46,12 @@ const onSubmit = async () => {
 
   console.log(currentUser, '当前用户')
 
-  const res = await myAxios.post('/user/update', {
+  const res = await myAxios.post<ResponseType>('/user/update', {
     'id': currentUser.id,
     [editUser.value.editKey as string]: editUser.value.currentValue,
   })
   console.log(res, '更新请求');
-  if (res.code === 0 && res.data > 0) {
+  if (res.data.code === 0 && res.data.data > 0) {
     Toast.success('修改成功');
     router.back();
   } else {
